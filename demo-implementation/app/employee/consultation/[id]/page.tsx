@@ -2,12 +2,17 @@
 
 import { notFound, useRouter } from 'next/navigation'
 import { use, useState, useRef, useEffect } from 'react'
-import { ArrowLeft, Send } from 'lucide-react'
+import { ArrowLeft, Send, Lock } from 'lucide-react'
 import { mockConsultations } from '@/lib/mock-data'
 import { formatTime } from '@/lib/utils'
 
 interface Props {
   params: Promise<{ id: string }>
+}
+
+const CATEGORY_LABEL: Record<string, string> = {
+  menstrual: '月経ケア', pms: 'PMS', menopause: '更年期',
+  pregnancy: '妊活', mental: 'メンタル', other: 'その他',
 }
 
 export default function ConsultationDetailPage({ params }: Props) {
@@ -28,70 +33,147 @@ export default function ConsultationDetailPage({ params }: Props) {
     if (!input.trim()) return
     setMessages((prev) => [
       ...prev,
-      {
-        id: `msg-new-${Date.now()}`,
-        senderType: 'user' as const,
-        body: input.trim(),
-        createdAt: new Date().toISOString(),
-      },
+      { id: `msg-${Date.now()}`, senderType: 'user' as const, body: input.trim(), createdAt: new Date().toISOString() },
     ])
     setInput('')
   }
 
-  const categoryLabel: Record<string, string> = {
-    menstrual: '月経ケア', pms: 'PMS', menopause: '更年期',
-    pregnancy: '妊活', mental: 'メンタル', other: 'その他',
-  }
-
   return (
-    <div className="max-w-lg mx-auto flex flex-col h-screen">
+    <div
+      style={{
+        maxWidth: 480,
+        margin: '0 auto',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100dvh',
+        backgroundColor: '#FAF8F5',
+      }}
+    >
+      {/* ヘッダー */}
       <header
-        className="sticky top-0 z-40 px-4 py-3 flex items-center gap-3 border-b flex-shrink-0"
-        style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}
+        style={{
+          padding: '12px 16px',
+          backgroundColor: 'rgba(255,255,255,0.95)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          borderBottom: '1px solid #EDE9E6',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          flexShrink: 0,
+          boxShadow: '0 2px 12px rgba(0,0,0,0.05)',
+        }}
       >
         <button
           onClick={() => router.back()}
-          className="tap-target rounded-full"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{
+            width: 38,
+            height: 38,
+            borderRadius: '50%',
+            backgroundColor: '#F2E0DE',
+            border: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            flexShrink: 0,
+          }}
           aria-label="戻る"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft size={18} color="#C97A72" />
         </button>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold truncate" style={{ color: 'var(--color-text-primary)' }}>
+
+        {/* 専門家アバター */}
+        <div
+          style={{
+            width: 38,
+            height: 38,
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #4A7C6F, #6BAB8F)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontSize: 13,
+            fontWeight: 700,
+            flexShrink: 0,
+          }}
+        >
+          医
+        </div>
+
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ fontSize: 14, fontWeight: 700, color: '#2D2D2D', marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {consultation.specialistName}
           </p>
-          <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-            {categoryLabel[consultation.category]}
+          <p style={{ fontSize: 11, color: '#9B9B9B' }}>
+            {CATEGORY_LABEL[consultation.category]} · オンライン
           </p>
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-4">
+      {/* メッセージエリア */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 14 }}>
         {messages.map((msg) => {
           const isUser = msg.senderType === 'user'
           return (
-            <div key={msg.id} className={`flex gap-2 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+            <div
+              key={msg.id}
+              style={{
+                display: 'flex',
+                gap: 10,
+                flexDirection: isUser ? 'row-reverse' : 'row',
+                alignItems: 'flex-end',
+              }}
+            >
+              {/* 専門家アバター */}
               {!isUser && (
                 <div
-                  className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-semibold"
-                  style={{ backgroundColor: 'var(--color-accent)' }}
+                  style={{
+                    width: 34,
+                    height: 34,
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #4A7C6F, #6BAB8F)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    fontSize: 11,
+                    fontWeight: 700,
+                    flexShrink: 0,
+                  }}
                 >
                   医
                 </div>
               )}
-              <div className={`flex flex-col ${isUser ? 'items-end' : 'items-start'} max-w-[78%]`}>
+
+              <div
+                style={{
+                  maxWidth: '72%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: isUser ? 'flex-end' : 'flex-start',
+                  gap: 4,
+                }}
+              >
                 <div
-                  className="rounded-2xl px-4 py-3 text-sm leading-relaxed"
                   style={{
-                    backgroundColor: isUser ? 'var(--color-primary)' : 'var(--color-surface)',
-                    color: isUser ? 'white' : 'var(--color-text-primary)',
-                    border: isUser ? 'none' : '1px solid var(--color-border)',
+                    padding: '12px 16px',
+                    borderRadius: isUser ? '20px 20px 6px 20px' : '20px 20px 20px 6px',
+                    fontSize: 14,
+                    lineHeight: 1.65,
+                    background: isUser
+                      ? 'linear-gradient(135deg, #C97A72, #D4958D)'
+                      : 'white',
+                    color: isUser ? 'white' : '#2D2D2D',
+                    boxShadow: isUser
+                      ? '0 3px 14px rgba(201,122,114,0.30)'
+                      : '0 2px 10px rgba(0,0,0,0.07)',
                   }}
                 >
                   {msg.body}
                 </div>
-                <span className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+                <span style={{ fontSize: 10, color: '#ABABAB' }}>
                   {formatTime(msg.createdAt)}
                 </span>
               </div>
@@ -101,21 +183,35 @@ export default function ConsultationDetailPage({ params }: Props) {
         <div ref={bottomRef} />
       </div>
 
+      {/* 入力バー */}
       <div
-        className="flex-shrink-0 px-4 py-3 border-t pb-safe"
-        style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}
+        style={{
+          padding: '12px 16px',
+          paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))',
+          backgroundColor: 'rgba(255,255,255,0.96)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          borderTop: '1px solid #EDE9E6',
+          flexShrink: 0,
+        }}
       >
-        <div className="flex gap-2 items-end">
+        <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="メッセージを入力..."
             rows={2}
-            className="flex-1 resize-none rounded-xl border px-3 py-2.5 text-sm focus:outline-none focus:ring-2"
             style={{
-              borderColor: 'var(--color-border)',
-              color: 'var(--color-text-primary)',
-              backgroundColor: 'var(--color-background)',
+              flex: 1,
+              resize: 'none',
+              borderRadius: 16,
+              border: '1.5px solid #EDE9E6',
+              padding: '12px 14px',
+              fontSize: 14,
+              lineHeight: 1.5,
+              color: '#2D2D2D',
+              backgroundColor: '#FAF8F5',
+              outline: 'none',
             }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() }
@@ -124,16 +220,31 @@ export default function ConsultationDetailPage({ params }: Props) {
           <button
             onClick={handleSend}
             disabled={!input.trim()}
-            className="w-11 h-11 rounded-full flex items-center justify-center text-white disabled:opacity-40 transition-opacity flex-shrink-0"
-            style={{ backgroundColor: 'var(--color-primary)' }}
+            style={{
+              width: 46,
+              height: 46,
+              borderRadius: '50%',
+              border: 'none',
+              background: input.trim()
+                ? 'linear-gradient(135deg, #C97A72, #D4958D)'
+                : '#E5E2DF',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: input.trim() ? 'pointer' : 'not-allowed',
+              flexShrink: 0,
+              boxShadow: input.trim() ? '0 3px 14px rgba(201,122,114,0.35)' : 'none',
+              transition: 'all 0.2s ease',
+            }}
             aria-label="送信"
           >
-            <Send className="w-4 h-4" />
+            <Send size={18} color="white" />
           </button>
         </div>
-        <p className="text-xs mt-2 text-center" style={{ color: 'var(--color-text-secondary)' }}>
-          🔒 あなたの情報は企業に共有されません
-        </p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, marginTop: 8 }}>
+          <Lock size={10} color="#ABABAB" />
+          <span style={{ fontSize: 10, color: '#ABABAB' }}>あなたの情報は企業に共有されません</span>
+        </div>
       </div>
     </div>
   )

@@ -4,41 +4,99 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, BookOpen, MessageCircle, BarChart2, Settings } from 'lucide-react'
 
-const navItems = [
-  { href: '/employee/home', icon: Home, label: 'ホーム' },
-  { href: '/employee/contents', icon: BookOpen, label: 'コンテンツ' },
-  { href: '/employee/consultation', icon: MessageCircle, label: '相談' },
-  { href: '/employee/records', icon: BarChart2, label: '記録' },
-  { href: '/employee/settings', icon: Settings, label: '設定' },
+const NAV_ITEMS = [
+  { href: '/employee/home',         Icon: Home,          label: 'ホーム' },
+  { href: '/employee/contents',     Icon: BookOpen,      label: 'コンテンツ' },
+  { href: '/employee/consultation', Icon: MessageCircle, label: '相談' },
+  { href: '/employee/records',      Icon: BarChart2,     label: '記録' },
+  { href: '/employee/settings',     Icon: Settings,      label: '設定' },
 ]
-
-
 
 export default function BottomNav() {
   const pathname = usePathname()
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 border-t pb-safe"
       style={{
-        backgroundColor: 'var(--color-surface)',
-        borderColor: 'var(--color-border)',
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
+        backgroundColor: 'rgba(255,255,255,0.95)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        borderTop: '1px solid #EDE9E6',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        boxShadow: '0 -4px 24px rgba(0,0,0,0.06)',
       }}
     >
-      <div className="flex items-stretch h-16 max-w-lg mx-auto">
-        {navItems.map(({ href, icon: Icon, label }) => {
+      <div style={{ display: 'flex', height: 60, maxWidth: 480, margin: '0 auto' }}>
+        {NAV_ITEMS.map(({ href, Icon, label }) => {
           const isActive = pathname === href || pathname.startsWith(href + '/')
           return (
             <Link
               key={href}
               href={href}
-              className="flex-1 flex flex-col items-center justify-center gap-1 text-xs font-medium transition-colors"
               style={{
-                color: isActive ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 3,
+                textDecoration: 'none',
+                padding: '6px 0',
+                position: 'relative',
               }}
             >
-              <Icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 1.5} />
-              <span>{label}</span>
+              {/* アクティブインジケーター */}
+              {isActive && (
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: -1,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: 28,
+                    height: 3,
+                    borderRadius: '0 0 3px 3px',
+                    background: 'linear-gradient(90deg, #C97A72, #D4958D)',
+                  }}
+                />
+              )}
+
+              {/* アイコンラッパー */}
+              <div
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 10,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: isActive ? '#F2E0DE' : 'transparent',
+                  transition: 'background-color 0.2s ease',
+                }}
+              >
+                <Icon
+                  size={20}
+                  color={isActive ? '#C97A72' : '#9B9B9B'}
+                  strokeWidth={isActive ? 2.5 : 1.8}
+                  fill={isActive && href === '/employee/home' ? '#C97A72' : 'none'}
+                />
+              </div>
+
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: isActive ? 700 : 500,
+                  color: isActive ? '#C97A72' : '#9B9B9B',
+                  letterSpacing: '0.2px',
+                }}
+              >
+                {label}
+              </span>
             </Link>
           )
         })}

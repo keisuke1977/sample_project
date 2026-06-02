@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { mockContents, CONTENT_CATEGORIES, type ContentCategory } from '@/lib/mock-data'
 import { getCategoryColor } from '@/lib/utils'
-import { Clock } from 'lucide-react'
+import { Clock, Sparkles } from 'lucide-react'
 
 export default function ContentsPage() {
   const [activeCategory, setActiveCategory] = useState<ContentCategory | 'all'>('all')
@@ -15,85 +15,203 @@ export default function ContentsPage() {
       : mockContents.filter((c) => c.category === activeCategory)
 
   return (
-    <div className="max-w-lg mx-auto">
+    <div style={{ maxWidth: 480, margin: '0 auto', backgroundColor: '#FAF8F5', minHeight: '100vh' }}>
+
+      {/* ヘッダー */}
       <header
-        className="sticky top-0 z-40 px-4 pt-4 border-b"
-        style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 40,
+          padding: '16px 16px 0',
+          backgroundColor: 'rgba(255,255,255,0.92)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          borderBottom: '1px solid #EDE9E6',
+        }}
       >
-        <h1 className="text-lg font-bold mb-3" style={{ color: 'var(--color-text-primary)' }}>
-          コンテンツ
-        </h1>
-        <div className="flex gap-2 overflow-x-auto pb-3 -mx-4 px-4">
-          <button
-            onClick={() => setActiveCategory('all')}
-            className="flex-shrink-0 text-xs font-medium px-3 py-2 rounded-full border transition-colors"
+        {/* タイトル */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+          <div
             style={{
-              borderColor: activeCategory === 'all' ? 'var(--color-primary)' : 'var(--color-border)',
-              backgroundColor: activeCategory === 'all' ? 'var(--color-primary-light)' : 'transparent',
-              color: activeCategory === 'all' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+              width: 30,
+              height: 30,
+              borderRadius: 9,
+              background: 'linear-gradient(135deg, #9B87B5, #C97A72)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
-            すべて
-          </button>
-          {CONTENT_CATEGORIES.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              className="flex-shrink-0 text-xs font-medium px-3 py-2 rounded-full border transition-colors"
-              style={{
-                borderColor: activeCategory === cat.id ? cat.color : 'var(--color-border)',
-                backgroundColor: activeCategory === cat.id ? `${cat.color}20` : 'transparent',
-                color: activeCategory === cat.id ? cat.color : 'var(--color-text-secondary)',
-              }}
-            >
-              {cat.label}
-            </button>
-          ))}
+            <Sparkles size={14} color="white" />
+          </div>
+          <h1 style={{ fontSize: 18, fontWeight: 700, color: '#2D2D2D' }}>コンテンツ</h1>
+        </div>
+
+        {/* カテゴリフィルター */}
+        <div
+          style={{
+            display: 'flex',
+            gap: 8,
+            overflowX: 'auto',
+            paddingBottom: 12,
+            margin: '0 -16px',
+            padding: '0 16px 12px',
+          }}
+        >
+          {[{ id: 'all' as const, label: 'すべて', color: '#9B9B9B' }, ...CONTENT_CATEGORIES].map((cat) => {
+            const isActive = activeCategory === cat.id
+            const col = cat.id === 'all' ? '#C97A72' : cat.color
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCategory(cat.id)}
+                style={{
+                  flexShrink: 0,
+                  padding: '8px 16px',
+                  borderRadius: 9999,
+                  border: `1.5px solid ${isActive ? col : '#EDE9E6'}`,
+                  background: isActive ? `linear-gradient(135deg, ${col}28, ${col}12)` : 'white',
+                  color: isActive ? col : '#9B9B9B',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  boxShadow: isActive ? `0 2px 10px ${col}20` : 'none',
+                  transition: 'all 0.2s ease',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {cat.label}
+              </button>
+            )
+          })}
         </div>
       </header>
 
-      <div className="px-4 py-4 space-y-3">
-        {filtered.map((content) => (
-          <Link
-            key={content.id}
-            href={`/employee/contents/${content.id}`}
-            className="flex gap-4 rounded-xl overflow-hidden border card-hover"
-            style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}
-          >
-            <div className="w-28 h-24 flex-shrink-0 overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={content.thumbnailUrl}
-                alt={content.title}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="flex-1 py-3 pr-4">
-              <span
-                className="inline-block text-xs font-medium px-2 py-0.5 rounded-full mb-1"
-                style={{
-                  backgroundColor: `${getCategoryColor(content.category)}18`,
-                  color: getCategoryColor(content.category),
-                }}
-              >
-                {CONTENT_CATEGORIES.find((c) => c.id === content.category)?.label}
-              </span>
-              <h3
-                className="text-sm font-semibold leading-snug mb-1 line-clamp-2"
-                style={{ color: 'var(--color-text-primary)' }}
-              >
-                {content.title}
-              </h3>
-              <div className="flex items-center gap-1 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                <Clock className="w-3 h-3" />
-                <span>{content.readTime}分</span>
-              </div>
-            </div>
-          </Link>
-        ))}
-        {filtered.length === 0 && (
-          <div className="text-center py-16" style={{ color: 'var(--color-text-secondary)' }}>
-            <p>このカテゴリのコンテンツはまだありません</p>
+      {/* コンテンツ一覧 */}
+      <div style={{ padding: '16px' }}>
+        {filtered.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '60px 0', color: '#9B9B9B' }}>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>🌸</div>
+            <p style={{ fontSize: 14 }}>このカテゴリのコンテンツはまだありません</p>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {/* 1件目：大カード */}
+            {filtered[0] && (
+              <Link href={`/employee/contents/${filtered[0].id}`} style={{ textDecoration: 'none', display: 'block' }}>
+                <div
+                  className="card-hover"
+                  style={{
+                    borderRadius: 22,
+                    overflow: 'hidden',
+                    backgroundColor: 'white',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.09)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <div style={{ position: 'relative', height: 200 }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={filtered[0].thumbnailUrl}
+                      alt={filtered[0].title}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                    <div
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: 'linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.55) 100%)',
+                      }}
+                    />
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '16px' }}>
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          fontSize: 11,
+                          fontWeight: 700,
+                          padding: '4px 10px',
+                          borderRadius: 9999,
+                          marginBottom: 8,
+                          backgroundColor: `${getCategoryColor(filtered[0].category)}CC`,
+                          color: 'white',
+                        }}
+                      >
+                        {CONTENT_CATEGORIES.find((c) => c.id === filtered[0].category)?.label}
+                      </span>
+                      <p style={{ color: 'white', fontWeight: 700, fontSize: 16, lineHeight: 1.4, marginBottom: 6 }}>
+                        {filtered[0].title}
+                      </p>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'rgba(255,255,255,0.75)' }}>
+                        <Clock size={11} />
+                        <span style={{ fontSize: 11 }}>{filtered[0].readTime}分で読める</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            )}
+
+            {/* 2件目以降：横長カード */}
+            {filtered.slice(1).map((content) => {
+              const catColor = getCategoryColor(content.category)
+              return (
+                <Link
+                  key={content.id}
+                  href={`/employee/contents/${content.id}`}
+                  style={{ textDecoration: 'none', display: 'block' }}
+                >
+                  <div
+                    className="card-hover"
+                    style={{
+                      display: 'flex',
+                      gap: 0,
+                      borderRadius: 18,
+                      overflow: 'hidden',
+                      backgroundColor: 'white',
+                      boxShadow: '0 3px 14px rgba(0,0,0,0.07)',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <div style={{ width: 100, flexShrink: 0, position: 'relative' }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={content.thumbnailUrl}
+                        alt={content.title}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                      />
+                    </div>
+                    <div style={{ flex: 1, padding: '14px 14px 14px 14px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          fontSize: 10,
+                          fontWeight: 700,
+                          padding: '3px 9px',
+                          borderRadius: 9999,
+                          marginBottom: 6,
+                          backgroundColor: `${catColor}18`,
+                          color: catColor,
+                          alignSelf: 'flex-start',
+                        }}
+                      >
+                        {CONTENT_CATEGORIES.find((c) => c.id === content.category)?.label}
+                      </span>
+                      <p
+                        className="line-clamp-2"
+                        style={{ fontSize: 13, fontWeight: 600, lineHeight: 1.45, color: '#2D2D2D', marginBottom: 6 }}
+                      >
+                        {content.title}
+                      </p>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#9B9B9B' }}>
+                        <Clock size={10} />
+                        <span style={{ fontSize: 11 }}>{content.readTime}分</span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              )
+            })}
           </div>
         )}
       </div>

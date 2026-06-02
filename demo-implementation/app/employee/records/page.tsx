@@ -2,108 +2,212 @@
 
 import { checkInHistory, todayCheckin } from '@/lib/mock-data'
 import { getMenstrualLabel } from '@/lib/utils'
+import { BarChart2 } from 'lucide-react'
 
 const allRecords = [todayCheckin, ...checkInHistory]
 
-function ScoreBar({ score, max = 5 }: { score: number; max?: number }) {
+const MENSTRUAL_STYLE: Record<string, { color: string; gradient: string; emoji: string }> = {
+  menstrual:    { color: '#C97A72', gradient: 'linear-gradient(135deg,#F2E0DE,#FDEAE8)', emoji: '🌸' },
+  premenstrual: { color: '#9B87B5', gradient: 'linear-gradient(135deg,#EDE8F5,#F3EFFE)', emoji: '🌙' },
+  normal:       { color: '#4A7C6F', gradient: 'linear-gradient(135deg,#DCF0EB,#E8F5F0)', emoji: '☀️' },
+}
+
+const SYMPTOM_LABEL: Record<string, string> = {
+  headache: '頭痛', abdominal_pain: '腹痛', bloating: 'むくみ',
+  fatigue: '倦怠感', hot_flash: 'ほてり',
+}
+
+const SCORE_COLOR = ['', '#D95B4A', '#E8A87C', '#9B9B9B', '#6BAB8F', '#4A7C6F']
+const SCORE_EMOJI = ['', '😫', '😔', '😐', '🙂', '😄']
+
+function ScoreRow({ label, score, icon }: { label: string; score: number; icon: string }) {
+  const color = SCORE_COLOR[score] ?? '#9B9B9B'
   return (
-    <div className="flex items-center gap-2">
-      <div className="h-2 rounded-full flex-1" style={{ backgroundColor: 'var(--color-border)' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <span style={{ fontSize: 12, color: '#6B6B6B', width: 60, flexShrink: 0 }}>{label}</span>
+      <div style={{ flex: 1, height: 7, borderRadius: 4, backgroundColor: '#EDE9E6', overflow: 'hidden' }}>
         <div
-          className="h-2 rounded-full transition-all"
-          style={{ width: `${(score / max) * 100}%`, backgroundColor: 'var(--color-primary)' }}
+          style={{
+            height: '100%',
+            borderRadius: 4,
+            width: `${(score / 5) * 100}%`,
+            background: `linear-gradient(90deg, ${color}80, ${color})`,
+            transition: 'width 0.6s ease',
+          }}
         />
       </div>
-      <span className="text-xs font-medium w-3" style={{ color: 'var(--color-text-primary)' }}>
-        {score}
-      </span>
+      <span style={{ fontSize: 14, flexShrink: 0 }}>{SCORE_EMOJI[score]}</span>
+      <span style={{ fontSize: 12, fontWeight: 700, color, width: 20, flexShrink: 0 }}>{score}</span>
     </div>
   )
 }
 
 export default function RecordsPage() {
   return (
-    <div className="max-w-lg mx-auto">
+    <div style={{ maxWidth: 480, margin: '0 auto', backgroundColor: '#FAF8F5', minHeight: '100vh' }}>
+
+      {/* ヘッダー */}
       <header
-        className="sticky top-0 z-40 px-4 py-4 border-b"
-        style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 40,
+          padding: '16px',
+          backgroundColor: 'rgba(255,255,255,0.92)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          borderBottom: '1px solid #EDE9E6',
+        }}
       >
-        <h1 className="text-lg font-bold" style={{ color: 'var(--color-text-primary)' }}>
-          体調記録
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: 9,
+              background: 'linear-gradient(135deg, #C97A72, #D4958D)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <BarChart2 size={14} color="white" />
+          </div>
+          <h1 style={{ fontSize: 18, fontWeight: 700, color: '#2D2D2D' }}>体調記録</h1>
+        </div>
+
+        {/* 週サマリーバー */}
+        <div style={{ marginTop: 14, display: 'flex', gap: 6 }}>
+          {allRecords.slice(0, 7).map((r, i) => {
+            const avg = Math.round((r.sleepScore + r.fatigueScore + r.moodScore) / 3)
+            const col = SCORE_COLOR[avg] ?? '#9B9B9B'
+            const d = new Date(r.date)
+            return (
+              <div key={r.id} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                <div
+                  style={{
+                    width: '100%',
+                    height: 36,
+                    borderRadius: 10,
+                    background: i === 0
+                      ? `linear-gradient(180deg, ${col}, ${col}88)`
+                      : `linear-gradient(180deg, ${col}60, ${col}30)`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 13,
+                    boxShadow: i === 0 ? `0 3px 10px ${col}40` : 'none',
+                  }}
+                >
+                  {SCORE_EMOJI[avg]}
+                </div>
+                <span style={{ fontSize: 9, color: i === 0 ? col : '#9B9B9B', fontWeight: i === 0 ? 700 : 400 }}>
+                  {i === 0 ? '今日' : ['日', '月', '火', '水', '木', '金', '土'][d.getDay()]}
+                </span>
+              </div>
+            )
+          })}
+        </div>
       </header>
 
-      <div className="px-4 py-5 space-y-4">
+      {/* 記録一覧 */}
+      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
         {allRecords.map((record, idx) => {
-          const date = new Date(record.date)
-          const dateLabel =
-            idx === 0
-              ? '今日'
-              : date.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric', weekday: 'short' })
+          const date  = new Date(record.date)
+          const style = MENSTRUAL_STYLE[record.menstrualStatus] ?? MENSTRUAL_STYLE.normal
+          const dateLabel = idx === 0
+            ? '今日'
+            : date.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric', weekday: 'short' })
 
           return (
             <div
               key={record.id}
-              className="rounded-2xl p-5 border"
               style={{
-                backgroundColor: 'var(--color-surface)',
-                borderColor: idx === 0 ? 'var(--color-primary)' : 'var(--color-border)',
-                borderWidth: idx === 0 ? 2 : 1,
+                borderRadius: 20,
+                overflow: 'hidden',
+                backgroundColor: 'white',
+                boxShadow: idx === 0 ? '0 4px 20px rgba(201,122,114,0.15)' : '0 3px 12px rgba(0,0,0,0.06)',
+                border: idx === 0 ? '1.5px solid #C97A7230' : 'none',
               }}
             >
-              <div className="flex items-center justify-between mb-4">
-                <p
-                  className="text-sm font-semibold"
-                  style={{ color: idx === 0 ? 'var(--color-primary)' : 'var(--color-text-primary)' }}
-                >
-                  {dateLabel}
-                </p>
+              {/* カードヘッダー */}
+              <div
+                style={{
+                  padding: '14px 16px 12px',
+                  background: idx === 0 ? style.gradient : 'transparent',
+                  borderBottom: '1px solid #F0EDE9',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontSize: 22 }}>{style.emoji}</span>
+                  <div>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: idx === 0 ? style.color : '#2D2D2D', marginBottom: 2 }}>
+                      {dateLabel}
+                    </p>
+                    <p style={{ fontSize: 11, color: '#9B9B9B' }}>
+                      {date.toLocaleDateString('ja-JP', { year: 'numeric', month: 'short', day: 'numeric' })}
+                    </p>
+                  </div>
+                </div>
                 <span
-                  className="text-xs px-2 py-1 rounded-full"
-                  style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    padding: '5px 12px',
+                    borderRadius: 9999,
+                    backgroundColor: `${style.color}18`,
+                    color: style.color,
+                  }}
                 >
-                  {getMenstrualLabel(record.menstrualStatus)}
+                  {style.emoji} {getMenstrualLabel(record.menstrualStatus)}
                 </span>
               </div>
 
-              <div className="space-y-2.5">
-                {[
-                  { label: '睡眠の質', score: record.sleepScore },
-                  { label: '倦怠感', score: record.fatigueScore },
-                  { label: '気分', score: record.moodScore },
-                ].map(({ label, score }) => (
-                  <div key={label} className="grid grid-cols-[80px_1fr] items-center gap-3">
-                    <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                      {label}
-                    </span>
-                    <ScoreBar score={score} />
-                  </div>
-                ))}
+              {/* スコア */}
+              <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <ScoreRow label="睡眠の質" score={record.sleepScore}   icon="🌙" />
+                <ScoreRow label="疲れ具合" score={record.fatigueScore} icon="⚡" />
+                <ScoreRow label="気分・心" score={record.moodScore}    icon="💭" />
               </div>
 
+              {/* 症状タグ */}
               {record.symptoms.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {record.symptoms.map((s) => {
-                    const labels: Record<string, string> = {
-                      headache: '頭痛', abdominal_pain: '腹痛', bloating: 'むくみ',
-                      fatigue: '倦怠感', hot_flash: 'ほてり',
-                    }
-                    return (
-                      <span
-                        key={s}
-                        className="text-xs px-2 py-1 rounded-full"
-                        style={{ backgroundColor: 'var(--color-border)', color: 'var(--color-text-secondary)' }}
-                      >
-                        {labels[s] ?? s}
-                      </span>
-                    )
-                  })}
+                <div style={{ padding: '0 16px 12px', display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {record.symptoms.map((s) => (
+                    <span
+                      key={s}
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 600,
+                        padding: '4px 10px',
+                        borderRadius: 9999,
+                        backgroundColor: '#F2E0DE',
+                        color: '#C97A72',
+                      }}
+                    >
+                      {SYMPTOM_LABEL[s] ?? s}
+                    </span>
+                  ))}
                 </div>
               )}
 
-              <p className="text-xs mt-3 leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
-                {record.feedbackMessage}
-              </p>
+              {/* フィードバック */}
+              <div
+                style={{
+                  margin: '0 16px 14px',
+                  padding: '10px 12px',
+                  borderRadius: 12,
+                  backgroundColor: '#FAF8F5',
+                  borderLeft: `3px solid ${style.color}60`,
+                }}
+              >
+                <p style={{ fontSize: 12, lineHeight: 1.65, color: '#6B6B6B' }}>
+                  {record.feedbackMessage}
+                </p>
+              </div>
             </div>
           )
         })}

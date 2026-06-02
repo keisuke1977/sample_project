@@ -1,81 +1,166 @@
 import Link from 'next/link'
 import { mockConsultations, mockSlots } from '@/lib/mock-data'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, Plus, Video } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 
-const statusLabel: Record<string, { label: string; color: string; bg: string }> = {
-  pending: { label: '返信待ち', color: '#E8A87C', bg: '#FBF1E8' },
-  active: { label: '回答あり', color: 'var(--color-accent)', bg: 'var(--color-accent-light)' },
-  closed: { label: 'クローズ', color: '#9B9B9B', bg: '#F0F0F0' },
+const STATUS_MAP: Record<string, { label: string; color: string; bg: string; gradient: string }> = {
+  pending: { label: '返信待ち', color: '#E8A87C', bg: '#FBF1E8', gradient: 'linear-gradient(135deg,#FBF1E8,#FFF6F0)' },
+  active:  { label: '回答あり', color: '#4A7C6F', bg: '#DCF0EB', gradient: 'linear-gradient(135deg,#DCF0EB,#E8F5F0)' },
+  closed:  { label: 'クローズ', color: '#9B9B9B', bg: '#F0F0F0', gradient: 'linear-gradient(135deg,#F5F5F5,#F0F0F0)' },
 }
 
-const categoryLabel: Record<string, string> = {
-  menstrual: '月経ケア',
-  pms: 'PMS',
-  menopause: '更年期',
-  pregnancy: '妊活',
-  mental: 'メンタル',
-  other: 'その他',
+const CATEGORY_LABEL: Record<string, string> = {
+  menstrual: '月経ケア', pms: 'PMS', menopause: '更年期',
+  pregnancy: '妊活', mental: 'メンタル', other: 'その他',
 }
 
 export default function ConsultationPage() {
   const availableSlots = mockSlots.filter((s) => s.available).slice(0, 3)
 
   return (
-    <div className="max-w-lg mx-auto">
+    <div style={{ maxWidth: 480, margin: '0 auto', backgroundColor: '#FAF8F5', minHeight: '100vh' }}>
+
+      {/* ヘッダー */}
       <header
-        className="sticky top-0 z-40 px-4 py-4 border-b"
-        style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 40,
+          padding: '16px 16px 14px',
+          backgroundColor: 'rgba(255,255,255,0.92)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          borderBottom: '1px solid #EDE9E6',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
       >
-        <h1 className="text-lg font-bold" style={{ color: 'var(--color-text-primary)' }}>
-          相談
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: 9,
+              background: 'linear-gradient(135deg, #4A7C6F, #6BAB8F)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <span style={{ fontSize: 14 }}>💬</span>
+          </div>
+          <h1 style={{ fontSize: 18, fontWeight: 700, color: '#2D2D2D' }}>専門家相談</h1>
+        </div>
+        <Link
+          href="/employee/consultation/new"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 5,
+            padding: '8px 14px',
+            borderRadius: 9999,
+            background: 'linear-gradient(135deg, #C97A72, #D4958D)',
+            color: 'white',
+            fontSize: 12,
+            fontWeight: 700,
+            textDecoration: 'none',
+            boxShadow: '0 3px 12px rgba(201,122,114,0.35)',
+          }}
+        >
+          <Plus size={13} />
+          新しい相談
+        </Link>
       </header>
 
-      <div className="px-4 py-5 space-y-6">
-        {/* チャット相談 */}
-        <section>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-bold" style={{ color: 'var(--color-text-primary)' }}>
-              チャット相談
-            </h2>
-            <Link
-              href="/employee/consultation/new"
-              className="text-xs font-medium px-3 py-1.5 rounded-full text-white"
-              style={{ backgroundColor: 'var(--color-primary)' }}
-            >
-              ＋ 新しい相談
-            </Link>
-          </div>
+      <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 24 }}>
 
-          <div className="space-y-3">
+        {/* チャット相談一覧 */}
+        <section>
+          <h2 style={{ fontSize: 15, fontWeight: 700, color: '#2D2D2D', marginBottom: 12 }}>チャット相談</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {mockConsultations.map((c) => {
-              const status = statusLabel[c.status]
+              const status = STATUS_MAP[c.status]
               const lastMsg = c.messages[c.messages.length - 1]
               return (
                 <Link
                   key={c.id}
                   href={`/employee/consultation/${c.id}`}
-                  className="block rounded-xl border p-4 card-hover"
-                  style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}
+                  style={{ textDecoration: 'none', display: 'block' }}
                 >
-                  <div className="flex items-start justify-between gap-3 mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: '#F0EEF8', color: '#7B68B5' }}>
-                        {categoryLabel[c.category]}
-                      </span>
-                      <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: status.bg, color: status.color }}>
-                        {status.label}
+                  <div
+                    className="card-hover"
+                    style={{
+                      borderRadius: 18,
+                      padding: '16px',
+                      backgroundColor: 'white',
+                      boxShadow: '0 3px 16px rgba(0,0,0,0.07)',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {/* ステータス行 */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span
+                          style={{
+                            fontSize: 11,
+                            fontWeight: 700,
+                            padding: '4px 10px',
+                            borderRadius: 9999,
+                            background: 'linear-gradient(135deg,#EDE8F5,#F3EFFE)',
+                            color: '#9B87B5',
+                          }}
+                        >
+                          {CATEGORY_LABEL[c.category]}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 11,
+                            fontWeight: 700,
+                            padding: '4px 10px',
+                            borderRadius: 9999,
+                            background: status.gradient,
+                            color: status.color,
+                          }}
+                        >
+                          {status.label}
+                        </span>
+                      </div>
+                      <ChevronRight size={16} color="#C0C0C0" />
+                    </div>
+
+                    {/* 最新メッセージ */}
+                    <p
+                      className="line-clamp-2"
+                      style={{ fontSize: 13, lineHeight: 1.6, color: '#2D2D2D', marginBottom: 8 }}
+                    >
+                      {lastMsg?.body}
+                    </p>
+
+                    {/* 専門家・日付 */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div
+                        style={{
+                          width: 22,
+                          height: 22,
+                          borderRadius: '50%',
+                          background: 'linear-gradient(135deg, #4A7C6F, #6BAB8F)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'white',
+                          fontSize: 9,
+                          fontWeight: 700,
+                          flexShrink: 0,
+                        }}
+                      >
+                        医
+                      </div>
+                      <span style={{ fontSize: 11, color: '#9B9B9B' }}>
+                        {c.specialistName} · {formatDate(c.createdAt)}
                       </span>
                     </div>
-                    <ChevronRight className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: 'var(--color-text-secondary)' }} />
                   </div>
-                  <p className="text-sm line-clamp-2 mb-2" style={{ color: 'var(--color-text-primary)' }}>
-                    {lastMsg?.body}
-                  </p>
-                  <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                    {c.specialistName} ・ {formatDate(c.createdAt)}
-                  </p>
                 </Link>
               )
             })}
@@ -84,42 +169,81 @@ export default function ConsultationPage() {
 
         {/* ビデオ相談 */}
         <section>
-          <h2 className="text-sm font-bold mb-3" style={{ color: 'var(--color-text-primary)' }}>
-            産婦人科医 オンライン相談
-          </h2>
+          <h2 style={{ fontSize: 15, fontWeight: 700, color: '#2D2D2D', marginBottom: 12 }}>産婦人科医 オンライン相談</h2>
+
+          {/* バナー */}
           <div
-            className="rounded-2xl p-4 mb-3 flex items-start gap-3"
-            style={{ backgroundColor: 'var(--color-medical)' }}
+            style={{
+              borderRadius: 20,
+              padding: '18px',
+              background: 'linear-gradient(135deg, #EEF3F7 0%, #E5EEF5 100%)',
+              marginBottom: 12,
+              display: 'flex',
+              gap: 14,
+              alignItems: 'center',
+              boxShadow: '0 3px 14px rgba(0,0,0,0.06)',
+            }}
           >
-            <span className="text-2xl">🎥</span>
+            <div
+              style={{
+                width: 52,
+                height: 52,
+                borderRadius: 16,
+                backgroundColor: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+              }}
+            >
+              <Video size={22} color="#4A6C8A" />
+            </div>
             <div>
-              <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
+              <p style={{ fontSize: 14, fontWeight: 700, color: '#2D2D2D', marginBottom: 4 }}>
                 産婦人科医にビデオで直接相談
               </p>
-              <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-                30分の1on1相談。予約は3日前まで。
-              </p>
+              <p style={{ fontSize: 12, color: '#6B6B6B' }}>30分の1on1相談。予約は3日前まで。</p>
             </div>
           </div>
 
-          <div className="space-y-2">
+          {/* 予約枠 */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {availableSlots.map((slot) => (
               <div
                 key={slot.id}
-                className="flex items-center justify-between rounded-xl border p-3.5"
-                style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '14px 16px',
+                  borderRadius: 16,
+                  backgroundColor: 'white',
+                  boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+                  gap: 12,
+                }}
               >
-                <div>
-                  <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: '#2D2D2D', marginBottom: 3 }}>
                     {slot.specialistName}
                   </p>
-                  <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
+                  <p style={{ fontSize: 11, color: '#9B9B9B' }}>
                     {formatDate(slot.date)} {slot.time}〜
                   </p>
                 </div>
                 <button
-                  className="text-xs font-semibold px-4 py-2 rounded-full text-white"
-                  style={{ backgroundColor: 'var(--color-accent)' }}
+                  style={{
+                    padding: '8px 18px',
+                    borderRadius: 9999,
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #4A7C6F, #6BAB8F)',
+                    color: 'white',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                    boxShadow: '0 3px 10px rgba(74,124,111,0.30)',
+                  }}
                 >
                   予約する
                 </button>
@@ -128,9 +252,23 @@ export default function ConsultationPage() {
           </div>
         </section>
 
-        <div className="badge-medical w-full justify-center">
-          🏥 このサービスは医療行為ではありません。診断・処方は行いません。
+        {/* 医療免責 */}
+        <div
+          style={{
+            borderRadius: 14,
+            padding: '12px 14px',
+            background: 'linear-gradient(135deg, #EEF3F7, #E8EFF5)',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: 8,
+          }}
+        >
+          <span style={{ fontSize: 14, flexShrink: 0 }}>🏥</span>
+          <p style={{ fontSize: 11, color: '#4A6C8A', lineHeight: 1.6 }}>
+            このサービスは医療行為ではありません。診断・処方は行いません。
+          </p>
         </div>
+
       </div>
     </div>
   )

@@ -1,70 +1,43 @@
 @import "tailwindcss";
 
 @theme {
-  /* カラーパレット — Femcare デザインシステム */
-  --color-primary: #C97A72;
-  --color-primary-light: #F2E0DE;
-  --color-accent: #4A7C6F;
-  --color-accent-light: #DCF0EB;
-  --color-background: #FAF8F5;
-  --color-surface: #FFFFFF;
-  --color-text-primary: #2D2D2D;
+  --color-primary:        #C97A72;
+  --color-primary-light:  #F2E0DE;
+  --color-primary-deep:   #A85F58;
+  --color-accent:         #4A7C6F;
+  --color-accent-light:   #DCF0EB;
+  --color-lavender:       #9B87B5;
+  --color-lavender-light: #EDE8F5;
+  --color-background:     #FAF8F5;
+  --color-surface:        #FFFFFF;
+  --color-text-primary:   #2D2D2D;
   --color-text-secondary: #6B6B6B;
-  --color-border: #E5E2DF;
-  --color-medical: #EEF3F7;
-  --color-error: #D95B4A;
-  --color-warning: #E8A87C;
-  --color-success: #6BAB8F;
+  --color-border:         #EDE9E6;
+  --color-medical:        #EEF3F7;
+  --color-error:          #D95B4A;
+  --color-warning:        #E8A87C;
+  --color-success:        #6BAB8F;
 
-  /* フォント */
   --font-sans: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', sans-serif;
-
-  /* Border Radius */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
   --radius-full: 9999px;
-
-  /* スペーシング拡張 */
-  --spacing-18: 4.5rem;
-  --spacing-22: 5.5rem;
 }
 
 @layer base {
   html {
     font-family: 'Inter', var(--font-sans);
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
-
   body {
     background-color: var(--color-background);
     color: var(--color-text-primary);
   }
-
-  * {
-    box-sizing: border-box;
-  }
-
-  /* スクロールバーをシンプルに */
-  ::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: var(--color-border);
-    border-radius: 2px;
-  }
+  * { box-sizing: border-box; }
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 2px; }
 }
 
 @layer utilities {
-  .text-primary { color: var(--color-text-primary); }
-  .text-secondary { color: var(--color-text-secondary); }
-
-  /* タップターゲット最小サイズ (WCAG 2.1 AA) */
+  /* タップターゲット */
   .tap-target {
     min-width: 44px;
     min-height: 44px;
@@ -73,55 +46,80 @@
     justify-content: center;
   }
 
-  /* 安心バッジ */
+  /* カードホバー */
+  .card-hover {
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+  }
+  .card-hover:hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+  }
+
+  /* ライン制限 */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* バッジ */
   .badge-privacy {
-    background-color: var(--color-accent-light);
+    background: linear-gradient(135deg, #DCF0EB, #E8F2EE);
     color: var(--color-accent);
-    font-size: 0.75rem;
-    padding: 6px 12px;
-    border-radius: var(--radius-full);
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 9999px;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
   }
-
-  /* 医療免責バッジ */
   .badge-medical {
-    background-color: var(--color-medical);
+    background: linear-gradient(135deg, #EEF3F7, #E8EFF5);
     color: #4A6C8A;
-    font-size: 0.75rem;
-    padding: 6px 12px;
-    border-radius: var(--radius-full);
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 9999px;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
   }
 
-  /* チェックイン完了アニメーション */
+  /* 安全エリア */
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .pt-safe { padding-top:    env(safe-area-inset-top,    0px); }
+
+  /* アニメーション */
   .animate-check {
-    animation: checkPop 0.4s ease-out forwards;
+    animation: checkPop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  .animate-float {
+    animation: floatUp 3s ease-in-out infinite;
+  }
+  .animate-slide-up {
+    animation: slideUp 0.4s cubic-bezier(0.34, 1.2, 0.64, 1) both;
+  }
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease both;
   }
 
   @keyframes checkPop {
-    0%   { transform: scale(0); opacity: 0; }
-    60%  { transform: scale(1.2); opacity: 1; }
-    100% { transform: scale(1); opacity: 1; }
+    0%   { transform: scale(0) rotate(-10deg); opacity: 0; }
+    60%  { transform: scale(1.2) rotate(3deg);  opacity: 1; }
+    100% { transform: scale(1)   rotate(0deg);  opacity: 1; }
   }
-
-  /* カードホバー */
-  .card-hover {
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  @keyframes floatUp {
+    0%, 100% { transform: translateY(0px); }
+    50%      { transform: translateY(-5px); }
   }
-  .card-hover:hover {
-    box-shadow: 0 4px 16px rgba(0,0,0,0.10);
-    transform: translateY(-1px);
+  @keyframes slideUp {
+    from { transform: translateY(16px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
   }
-
-  /* セーフエリア対応（iOS ノッチ） */
-  .pb-safe {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-  .pt-safe {
-    padding-top: env(safe-area-inset-top, 0px);
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
   }
 }
