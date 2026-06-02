@@ -1,0 +1,127 @@
+@import "tailwindcss";
+
+@theme {
+  /* カラーパレット — Femcare デザインシステム */
+  --color-primary: #C97A72;
+  --color-primary-light: #F2E0DE;
+  --color-accent: #4A7C6F;
+  --color-accent-light: #DCF0EB;
+  --color-background: #FAF8F5;
+  --color-surface: #FFFFFF;
+  --color-text-primary: #2D2D2D;
+  --color-text-secondary: #6B6B6B;
+  --color-border: #E5E2DF;
+  --color-medical: #EEF3F7;
+  --color-error: #D95B4A;
+  --color-warning: #E8A87C;
+  --color-success: #6BAB8F;
+
+  /* フォント */
+  --font-sans: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', sans-serif;
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  /* スペーシング拡張 */
+  --spacing-18: 4.5rem;
+  --spacing-22: 5.5rem;
+}
+
+@layer base {
+  html {
+    font-family: 'Inter', var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  /* スクロールバーをシンプルに */
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 2px;
+  }
+}
+
+@layer utilities {
+  .text-primary { color: var(--color-text-primary); }
+  .text-secondary { color: var(--color-text-secondary); }
+
+  /* タップターゲット最小サイズ (WCAG 2.1 AA) */
+  .tap-target {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 安心バッジ */
+  .badge-privacy {
+    background-color: var(--color-accent-light);
+    color: var(--color-accent);
+    font-size: 0.75rem;
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* 医療免責バッジ */
+  .badge-medical {
+    background-color: var(--color-medical);
+    color: #4A6C8A;
+    font-size: 0.75rem;
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* チェックイン完了アニメーション */
+  .animate-check {
+    animation: checkPop 0.4s ease-out forwards;
+  }
+
+  @keyframes checkPop {
+    0%   { transform: scale(0); opacity: 0; }
+    60%  { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* カードホバー */
+  .card-hover {
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .card-hover:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+    transform: translateY(-1px);
+  }
+
+  /* セーフエリア対応（iOS ノッチ） */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+}
