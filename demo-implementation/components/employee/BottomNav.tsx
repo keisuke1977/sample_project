@@ -2,14 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, BookOpen, MessageCircle, BarChart2, Settings } from 'lucide-react'
+import { Home, Search, BookOpen, MessageCircle, BarChart2 } from 'lucide-react'
 
 const NAV_ITEMS = [
   { href: '/employee/home',         Icon: Home,          label: 'ホーム' },
+  { href: '/employee/tools',        Icon: Search,        label: 'ツール' },
   { href: '/employee/contents',     Icon: BookOpen,      label: 'コンテンツ' },
   { href: '/employee/consultation', Icon: MessageCircle, label: '相談' },
   { href: '/employee/records',      Icon: BarChart2,     label: '記録' },
-  { href: '/employee/settings',     Icon: Settings,      label: '設定' },
 ]
 
 export default function BottomNav() {
@@ -23,7 +23,7 @@ export default function BottomNav() {
         left: 0,
         right: 0,
         zIndex: 50,
-        backgroundColor: 'rgba(255,255,255,0.95)',
+        backgroundColor: 'rgba(255,255,255,0.96)',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
         borderTop: '1px solid #EDE9E6',
@@ -80,10 +80,9 @@ export default function BottomNav() {
                 }}
               >
                 <Icon
-                  size={20}
+                  size={19}
                   color={isActive ? '#C97A72' : '#9B9B9B'}
                   strokeWidth={isActive ? 2.5 : 1.8}
-                  fill={isActive && href === '/employee/home' ? '#C97A72' : 'none'}
                 />
               </div>
 

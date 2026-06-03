@@ -4,42 +4,6 @@ import { Heart, BarChart3, MessageCircle, Shield, CheckCircle, ArrowRight } from
 export default function LandingPage() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
-      {/* ヘッダー */}
-      <header
-        className="sticky top-0 z-50 border-b"
-        style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}
-      >
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: 'var(--color-primary)' }}
-            >
-              <Heart className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
-              Femcare
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/employee/home"
-              className="text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-              style={{ color: 'var(--color-text-secondary)' }}
-            >
-              従業員デモ
-            </Link>
-            <Link
-              href="/admin/dashboard"
-              className="text-sm font-medium px-4 py-2 rounded-lg text-white transition-colors"
-              style={{ backgroundColor: 'var(--color-primary)' }}
-            >
-              管理者デモ
-            </Link>
-          </div>
-        </div>
-      </header>
-
       {/* ヒーローセクション */}
       <section className="py-20 px-4 text-center">
         <div className="max-w-3xl mx-auto">

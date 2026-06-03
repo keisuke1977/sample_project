@@ -111,23 +111,25 @@ export default function HomePage() {
               }}
             />
           </button>
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #C97A72, #B8685F)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontWeight: 700,
-              fontSize: 14,
-              boxShadow: '0 3px 10px rgba(201,122,114,0.30)',
-            }}
-          >
-            {mockUser.name[0]}
-          </div>
+          <Link href="/employee/settings" style={{ textDecoration: 'none' }} aria-label="設定">
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #C97A72, #B8685F)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                fontWeight: 700,
+                fontSize: 14,
+                boxShadow: '0 3px 10px rgba(201,122,114,0.30)',
+              }}
+            >
+              {mockUser.name[0]}
+            </div>
+          </Link>
         </div>
       </header>
 

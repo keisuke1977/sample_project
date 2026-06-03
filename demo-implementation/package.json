@@ -10,6 +10,9 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@clerk/nextjs": "^7.4.2",
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.107.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.511.0",
@@ -17,7 +20,8 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "recharts": "^3.8.1",
-    "tailwind-merge": "^3.3.0"
+    "tailwind-merge": "^3.3.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.8",
