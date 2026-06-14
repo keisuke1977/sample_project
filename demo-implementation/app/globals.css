@@ -26,6 +26,7 @@
   html {
     font-family: 'Inter', var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   body {
     background-color: var(--color-background);
@@ -37,7 +38,6 @@
 }
 
 @layer utilities {
-  /* タップターゲット */
   .tap-target {
     min-width: 44px;
     min-height: 44px;
@@ -46,16 +46,15 @@
     justify-content: center;
   }
 
-  /* カードホバー */
   .card-hover {
-    transition: box-shadow 0.25s ease, transform 0.25s ease;
+    transition: box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .card-hover:hover {
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-    transform: translateY(-2px);
+    box-shadow: 0 20px 50px rgba(201, 122, 114, 0.14);
+    transform: translateY(-3px);
   }
 
-  /* ライン制限 */
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -63,63 +62,140 @@
     overflow: hidden;
   }
 
-  /* バッジ */
   .badge-privacy {
     background: linear-gradient(135deg, #DCF0EB, #E8F2EE);
     color: var(--color-accent);
     font-size: 0.72rem;
     font-weight: 600;
-    padding: 5px 12px;
+    padding: 6px 14px;
     border-radius: 9999px;
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-  }
-  .badge-medical {
-    background: linear-gradient(135deg, #EEF3F7, #E8EFF5);
-    color: #4A6C8A;
-    font-size: 0.72rem;
-    font-weight: 600;
-    padding: 5px 12px;
-    border-radius: 9999px;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
+    gap: 6px;
   }
 
-  /* 安全エリア */
   .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
-  .pt-safe { padding-top:    env(safe-area-inset-top,    0px); }
+  .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
 
-  /* アニメーション */
-  .animate-check {
-    animation: checkPop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  }
   .animate-float {
-    animation: floatUp 3s ease-in-out infinite;
+    animation: floatUp 4s ease-in-out infinite;
   }
-  .animate-slide-up {
-    animation: slideUp 0.4s cubic-bezier(0.34, 1.2, 0.64, 1) both;
-  }
-  .animate-fade-in {
-    animation: fadeIn 0.5s ease both;
+  .animate-fade-up {
+    animation: fadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
-  @keyframes checkPop {
-    0%   { transform: scale(0) rotate(-10deg); opacity: 0; }
-    60%  { transform: scale(1.2) rotate(3deg);  opacity: 1; }
-    100% { transform: scale(1)   rotate(0deg);  opacity: 1; }
-  }
   @keyframes floatUp {
-    0%, 100% { transform: translateY(0px); }
-    50%      { transform: translateY(-5px); }
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
   }
-  @keyframes slideUp {
-    from { transform: translateY(16px); opacity: 0; }
-    to   { transform: translateY(0);    opacity: 1; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+
+  /* ── Employee page containers ── */
+  /* モバイル: 480px中央寄せ / PC: 幅広・サイドバー内フル活用 */
+  .emp-page {
+    max-width: 480px;
+    margin: 0 auto;
+    background-color: #FAF8F5;
+    min-height: 100vh;
+  }
+  .emp-page-wide {
+    background-color: #FAF8F5;
+  }
+  @media (min-width: 768px) {
+    .emp-page {
+      max-width: 100%;
+      padding: 0 32px 40px;
+    }
+    .emp-page-wide {
+      padding: 0;
+    }
+    /* PCではスティッキーヘッダーの左端をゼロに */
+    .emp-page > header,
+    .emp-page-wide > header {
+      margin: 0 -32px;
+      padding-left: 32px;
+      padding-right: 32px;
+    }
+  }
+
+  /* ── Landing design system ── */
+  .font-display {
+    font-family: 'Shippori Mincho', 'Noto Sans JP', serif;
+    letter-spacing: 0.02em;
+  }
+
+  .landing-page {
+    --lp-rose: #C97A72;
+    --lp-rose-soft: #F2E0DE;
+    --lp-lavender: #9B87B5;
+    --lp-lavender-soft: #EDE8F5;
+    --lp-sage: #4A7C6F;
+    --lp-cream: #FAF8F5;
+    --lp-white: #FFFFFF;
+  }
+
+  .landing-mesh {
+    background-color: #FAF8F5;
+    background-image:
+      radial-gradient(ellipse 80% 60% at 10% 20%, rgba(242, 224, 222, 0.7) 0%, transparent 55%),
+      radial-gradient(ellipse 70% 50% at 90% 10%, rgba(237, 232, 245, 0.55) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 40% at 70% 90%, rgba(220, 240, 235, 0.45) 0%, transparent 50%);
+  }
+
+  .landing-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 52px;
+    padding: 0 28px;
+    border-radius: 9999px;
+    font-size: 15px;
+    font-weight: 500;
+    transition: transform 0.2s ease, box-shadow 0.25s ease, opacity 0.2s ease;
+  }
+  .landing-btn:active { transform: scale(0.98); }
+
+  .landing-btn-fill {
+    background: linear-gradient(135deg, #C97A72 0%, #D4958D 100%);
+    color: white;
+    box-shadow: 0 8px 28px rgba(201, 122, 114, 0.28);
+  }
+  .landing-btn-fill:hover {
+    box-shadow: 0 12px 36px rgba(201, 122, 114, 0.34);
+  }
+
+  .landing-btn-ghost {
+    background: rgba(255, 255, 255, 0.8);
+    color: #A85F58;
+    border: 1px solid rgba(201, 122, 114, 0.25);
+    backdrop-filter: blur(8px);
+  }
+  .landing-btn-ghost:hover {
+    background: white;
+    border-color: rgba(201, 122, 114, 0.4);
+  }
+
+  .landing-product-shadow {
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.8),
+      0 24px 80px rgba(201, 122, 114, 0.18),
+      0 8px 24px rgba(45, 45, 45, 0.06);
+  }
+
+  .landing-section-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--lp-rose);
+  }
+
+  .landing-card {
+    background: white;
+    border-radius: 24px;
+    border: 1px solid rgba(237, 233, 230, 0.8);
   }
 }

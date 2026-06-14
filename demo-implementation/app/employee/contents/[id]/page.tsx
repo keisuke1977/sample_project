@@ -1,8 +1,13 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Clock, Calendar, MessageCircle } from 'lucide-react'
-import { mockContents, CONTENT_CATEGORIES } from '@/lib/mock-data'
+import { CONTENT_CATEGORIES } from '@/lib/mock-data'
 import { getCategoryColor, formatDate } from '@/lib/utils'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
+
+function calcReadTime(body: string): number {
+  return Math.max(1, Math.round(body.length / 400))
+}
 
 interface Props {
   params: Promise<{ id: string }>
@@ -10,15 +15,24 @@ interface Props {
 
 export default async function ContentDetailPage({ params }: Props) {
   const { id } = await params
-  const content = mockContents.find((c) => c.id === id)
+  const supabase = createServiceRoleClient()
+
+  const { data: content } = await supabase
+    .from('contents')
+    .select('id, title, category, thumbnail_url, body, is_published, published_at')
+    .eq('id', id)
+    .eq('is_published', true)
+    .maybeSingle()
+
   if (!content) notFound()
 
   const catColor  = getCategoryColor(content.category)
   const catLabel  = CONTENT_CATEGORIES.find((c) => c.id === content.category)?.label ?? content.category
-  const paragraphs = content.body?.split('\n') ?? []
+  const paragraphs: string[] = content.body?.split('\n') ?? []
+  const readTime  = calcReadTime(content.body)
 
   return (
-    <div style={{ maxWidth: 480, margin: '0 auto', backgroundColor: '#FAF8F5', minHeight: '100vh' }}>
+    <div className="emp-page">
 
       {/* ヘッダー */}
       <header
@@ -61,7 +75,7 @@ export default async function ContentDetailPage({ params }: Props) {
       <div style={{ position: 'relative', height: 240, overflow: 'hidden' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={content.thumbnailUrl}
+          src={content.thumbnail_url ?? ''}
           alt={content.title}
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
@@ -92,10 +106,10 @@ export default async function ContentDetailPage({ params }: Props) {
             {catLabel}
           </span>
           <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#9B9B9B' }}>
-            <Clock size={11} /> {content.readTime}分
+            <Clock size={11} /> {readTime}分
           </span>
           <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#9B9B9B' }}>
-            <Calendar size={11} /> {formatDate(content.publishedAt)}
+            <Calendar size={11} /> {content.published_at ? formatDate(content.published_at) : ''}
           </span>
         </div>
 

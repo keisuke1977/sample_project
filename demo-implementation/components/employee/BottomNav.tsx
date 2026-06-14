@@ -2,11 +2,11 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Search, BookOpen, MessageCircle, BarChart2 } from 'lucide-react'
+import { Home, Users, BookOpen, MessageCircle, BarChart2 } from 'lucide-react'
 
 const NAV_ITEMS = [
   { href: '/employee/home',         Icon: Home,          label: 'ホーム' },
-  { href: '/employee/tools',        Icon: Search,        label: 'ツール' },
+  { href: '/employee/community',    Icon: Users,         label: 'コミュニティ' },
   { href: '/employee/contents',     Icon: BookOpen,      label: 'コンテンツ' },
   { href: '/employee/consultation', Icon: MessageCircle, label: '相談' },
   { href: '/employee/records',      Icon: BarChart2,     label: '記録' },

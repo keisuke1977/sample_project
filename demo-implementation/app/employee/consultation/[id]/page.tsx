@@ -40,13 +40,11 @@ export default function ConsultationDetailPage({ params }: Props) {
 
   return (
     <div
+      className="emp-page"
       style={{
-        maxWidth: 480,
-        margin: '0 auto',
         display: 'flex',
         flexDirection: 'column',
         height: '100dvh',
-        backgroundColor: '#FAF8F5',
       }}
     >
       {/* ヘッダー */}

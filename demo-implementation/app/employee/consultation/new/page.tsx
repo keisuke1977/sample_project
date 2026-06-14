@@ -27,7 +27,7 @@ export default function NewConsultationPage() {
   const ready = category !== null && body.trim().length > 0
 
   return (
-    <div style={{ maxWidth: 480, margin: '0 auto', backgroundColor: '#FAF8F5', minHeight: '100vh' }}>
+    <div className="emp-page">
 
       {/* ヘッダー */}
       <header

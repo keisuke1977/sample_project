@@ -29,7 +29,6 @@ export function useSupabaseUser() {
           .from('users')
           .select('*')
           .eq('clerk_user_id', clerkUser.id)
-          .is('deleted_at', null)
           .maybeSingle()
 
         if (fetchError) throw fetchError

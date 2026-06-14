@@ -434,6 +434,119 @@ export interface Database {
           created_at?: string
         }
       }
+      posts: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          content: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          content: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          content?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      community_posts: {
+        Row: {
+          id: string
+          user_id: string
+          category: 'menstruation' | 'pregnancy' | 'menopause' | 'work_life' | 'mental_health' | 'career' | 'other'
+          title: string
+          content: string
+          is_anonymous: boolean
+          likes_count: number
+          replies_count: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          category?: 'menstruation' | 'pregnancy' | 'menopause' | 'work_life' | 'mental_health' | 'career' | 'other'
+          title: string
+          content: string
+          is_anonymous?: boolean
+          likes_count?: number
+          replies_count?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          category?: 'menstruation' | 'pregnancy' | 'menopause' | 'work_life' | 'mental_health' | 'career' | 'other'
+          title?: string
+          content?: string
+          is_anonymous?: boolean
+          likes_count?: number
+          replies_count?: number
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      community_post_likes: {
+        Row: {
+          id: string
+          post_id: string
+          user_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          post_id: string
+          user_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          post_id?: string
+          user_id?: string
+          created_at?: string
+        }
+      }
+      community_replies: {
+        Row: {
+          id: string
+          post_id: string
+          user_id: string
+          content: string
+          is_anonymous: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          post_id: string
+          user_id: string
+          content: string
+          is_anonymous?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          post_id?: string
+          user_id?: string
+          content?: string
+          is_anonymous?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       department_monthly_summary: {
@@ -465,3 +578,7 @@ export interface Database {
 
 export type ConsultationMessage = Database['public']['Tables']['consultation_messages']['Row']
 export type CheckIn = Database['public']['Tables']['check_ins']['Row']
+export type Post = Database['public']['Tables']['posts']['Row']
+export type CommunityPost = Database['public']['Tables']['community_posts']['Row']
+export type CommunityReply = Database['public']['Tables']['community_replies']['Row']
+export type CommunityCategory = CommunityPost['category']

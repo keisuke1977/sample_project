@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, ArrowRight, Check, Heart } from 'lucide-react'
 import { SYMPTOMS, type MenstrualStatus } from '@/lib/mock-data'
+import { submitCheckIn } from '@/app/actions/checkin'
 
 type Step = 'sleep' | 'fatigue' | 'mood' | 'menstrual' | 'symptoms' | 'done'
 const STEPS: Step[] = ['sleep', 'fatigue', 'mood', 'menstrual', 'symptoms', 'done']
@@ -51,6 +52,8 @@ export default function CheckInPage() {
     sleepScore: null, fatigueScore: null, moodScore: null,
     menstrualStatus: null, symptoms: [],
   })
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [isPending, startTransition] = useTransition()
 
   const idx      = STEPS.indexOf(step)
   const total    = STEPS.length - 1
@@ -72,6 +75,26 @@ export default function CheckInPage() {
       symptoms: p.symptoms.includes(id) ? p.symptoms.filter((s) => s !== id) : [...p.symptoms, id],
     }))
 
+  const handleRecord = () => {
+    setSubmitError(null)
+    const formData = new FormData()
+    formData.append('sleep_score',      String(form.sleepScore    ?? 3))
+    formData.append('fatigue_score',    String(form.fatigueScore  ?? 3))
+    formData.append('mood_score',       String(form.moodScore     ?? 3))
+    formData.append('menstrual_status', form.menstrualStatus ?? 'normal')
+    form.symptoms.forEach((s) => formData.append('symptoms', s))
+    formData.append('check_date', new Date().toISOString().split('T')[0])
+
+    startTransition(async () => {
+      const result = await submitCheckIn(formData)
+      if (result.success) {
+        setStep('done')
+      } else {
+        setSubmitError(result.error ?? '保存に失敗しました')
+      }
+    })
+  }
+
   /* ── 完了画面 ── */
   if (step === 'done') {
     const feedback = form.menstrualStatus ? FEEDBACK[form.menstrualStatus] : 'お疲れ様でした。今日も健康に過ごしましょう。'
@@ -84,7 +107,7 @@ export default function CheckInPage() {
       <div
         style={{
           minHeight: '100vh',
-          maxWidth: 480,
+          maxWidth: 600,
           margin: '0 auto',
           padding: '40px 20px',
           display: 'flex',
@@ -202,7 +225,7 @@ export default function CheckInPage() {
   const ready = canNext()
 
   return (
-    <div style={{ minHeight: '100vh', maxWidth: 480, margin: '0 auto', backgroundColor: '#FAF8F5' }}>
+    <div className="emp-page">
 
       {/* ── ヘッダー ── */}
       <div
@@ -408,11 +431,16 @@ export default function CheckInPage() {
           </div>
         )}
 
-        {/* ── 次へボタン ── */}
+        {/* ── 次へ / 記録するボタン ── */}
         <div style={{ marginTop: 32 }}>
+          {submitError && (
+            <p style={{ color: '#D95B4A', fontSize: 13, textAlign: 'center', marginBottom: 12 }}>
+              ⚠️ {submitError}
+            </p>
+          )}
           <button
-            onClick={goNext}
-            disabled={!ready}
+            onClick={step === 'symptoms' ? handleRecord : goNext}
+            disabled={!ready || isPending}
             style={{
               width: '100%',
               display: 'flex',
@@ -422,16 +450,18 @@ export default function CheckInPage() {
               padding: '18px',
               borderRadius: 20,
               border: 'none',
-              background: ready ? 'linear-gradient(135deg, #C97A72 0%, #D4958D 100%)' : '#E5E2DF',
-              color: ready ? 'white' : '#9B9B9B',
+              background: (ready && !isPending) ? 'linear-gradient(135deg, #C97A72 0%, #D4958D 100%)' : '#E5E2DF',
+              color: (ready && !isPending) ? 'white' : '#9B9B9B',
               fontWeight: 700,
               fontSize: 16,
-              cursor: ready ? 'pointer' : 'not-allowed',
-              boxShadow: ready ? '0 5px 22px rgba(201,122,114,0.40)' : 'none',
+              cursor: (ready && !isPending) ? 'pointer' : 'not-allowed',
+              boxShadow: (ready && !isPending) ? '0 5px 22px rgba(201,122,114,0.40)' : 'none',
               transition: 'all 0.2s ease',
             }}
           >
-            {step === 'symptoms' ? '✓ 記録する' : <>次へ <ArrowRight size={20} /></>}
+            {step === 'symptoms'
+              ? (isPending ? '保存中...' : '✓ 記録する')
+              : <>次へ <ArrowRight size={20} /></>}
           </button>
         </div>
       </div>
