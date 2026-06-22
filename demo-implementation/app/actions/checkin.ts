@@ -4,7 +4,7 @@ import { auth } from '@clerk/nextjs/server'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
-import { requireEmployeeUserId } from '@/lib/supabase/auth-helpers'
+import { requireEmployeeUserId, getEmployeeUserId } from '@/lib/supabase/auth-helpers'
 
 const checkInSchema = z.object({
   sleep_score: z.coerce.number().int().min(1).max(5),
