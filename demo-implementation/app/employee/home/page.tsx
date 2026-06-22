@@ -5,6 +5,7 @@ import { auth, currentUser } from '@clerk/nextjs/server'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { getCategoryColor } from '@/lib/utils'
 import { CONTENT_CATEGORIES, mockContents } from '@/lib/mock-data'
+import { generateAIAdvice } from '@/lib/ai-advice'
 
 const PHASE_INFO = {
   premenstrual: {
@@ -73,6 +74,30 @@ export default async function HomePage() {
 
   const firstName = clerkUser?.firstName ?? clerkUser?.emailAddresses?.[0]?.emailAddress?.split('@')[0] ?? 'ゲスト'
   const phase = PHASE_INFO[(todayCheckIn?.menstrual_status as keyof typeof PHASE_INFO) ?? 'normal']
+
+  const aiAdvice = todayCheckIn ? generateAIAdvice({
+    menstrualStatus: (todayCheckIn.menstrual_status as 'menstrual' | 'premenstrual' | 'normal' | null) ?? null,
+    symptoms: [],
+    sleepScore:   todayCheckIn.sleep_score   ?? 3,
+    fatigueScore: todayCheckIn.fatigue_score ?? 3,
+    moodScore:    todayCheckIn.mood_score    ?? 3,
+  }) : null
+
+  const aiRelatedArticles = aiAdvice ? (() => {
+    const result: typeof mockContents = []
+    for (const cat of aiAdvice.relatedCategories) {
+      const found = mockContents.find((c) => c.category === cat && !result.includes(c))
+      if (found) result.push(found)
+      if (result.length >= 3) break
+    }
+    if (result.length < 3) {
+      for (const c of mockContents) {
+        if (!result.includes(c)) { result.push(c); if (result.length >= 3) break }
+      }
+    }
+    return result.slice(0, 3)
+  })() : []
+
   const today2 = new Date()
   const DOW = ['日', '月', '火', '水', '木', '金', '土'][today2.getDay()]
   const dateStr = `${today2.getMonth() + 1}月${today2.getDate()}日（${DOW}）`
@@ -203,6 +228,65 @@ export default async function HomePage() {
                 </Link>
               )}
             </div>
+
+            {/* ── AIパーソナライズアドバイス（チェックイン済みの場合） ── */}
+            {aiAdvice && (
+              <div style={{ marginBottom: 28 }}>
+                <div
+                  style={{
+                    borderRadius: 20, padding: '20px 22px',
+                    background: aiAdvice.gradient,
+                    border: `1px solid ${aiAdvice.color}22`,
+                    boxShadow: `0 4px 22px ${aiAdvice.color}18`,
+                  }}
+                >
+                  {/* AIラベル */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(255,255,255,0.85)', borderRadius: 20, padding: '4px 10px' }}>
+                      <Sparkles size={12} color={aiAdvice.color} />
+                      <span style={{ fontSize: 10, fontWeight: 800, color: aiAdvice.color, letterSpacing: '0.06em' }}>AI パーソナライズアドバイス</span>
+                    </div>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: 'white', background: aiAdvice.color, borderRadius: 9999, padding: '3px 8px' }}>
+                      {aiAdvice.todayKeyword}
+                    </span>
+                  </div>
+                  {/* ヘッドライン */}
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 10 }}>
+                    <span style={{ fontSize: 26, lineHeight: 1, flexShrink: 0 }}>{aiAdvice.icon}</span>
+                    <h3 style={{ fontSize: 15, fontWeight: 800, color: '#1A1A1A', lineHeight: 1.5 }}>{aiAdvice.headline}</h3>
+                  </div>
+                  {/* アクション */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                    {aiAdvice.actions.map((action, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.65)', borderRadius: 10, padding: '8px 12px' }}>
+                        <span style={{ fontSize: 16, flexShrink: 0 }}>{action.emoji}</span>
+                        <span style={{ fontSize: 12, lineHeight: 1.6, color: '#2D2D2D' }}>{action.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {/* 関連記事へ */}
+                  {aiRelatedArticles.length > 0 && (
+                    <div style={{ marginTop: 14 }}>
+                      <p style={{ fontSize: 11, fontWeight: 700, color: aiAdvice.color, marginBottom: 8 }}>今日のあなたへのおすすめ記事</p>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                        {aiRelatedArticles.slice(0, 2).map((article) => (
+                          <Link key={article.id} href={`/employee/contents/${article.id}`} style={{ textDecoration: 'none' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(255,255,255,0.7)', borderRadius: 12, padding: '8px 12px', cursor: 'pointer' }}>
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={article.thumbnailUrl} alt={article.title} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 8, flexShrink: 0 }} />
+                              <p style={{ fontSize: 12, fontWeight: 600, color: '#1A1A1A', lineHeight: 1.45, flex: 1, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                                {article.title}
+                              </p>
+                              <ChevronRight size={14} color={aiAdvice.color} style={{ flexShrink: 0 }} />
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* おすすめコンテンツ */}
             {recommended.length > 0 && (
@@ -534,6 +618,59 @@ export default async function HomePage() {
                 <ChevronRight size={18} color="rgba(255,255,255,0.7)" />
               </div>
             </Link>
+          )}
+
+          {/* ── モバイル：AIパーソナライズアドバイス ── */}
+          {aiAdvice && (
+            <section>
+              <div style={{
+                borderRadius: 20, padding: '18px',
+                background: aiAdvice.gradient,
+                border: `1px solid ${aiAdvice.color}22`,
+                boxShadow: `0 4px 20px ${aiAdvice.color}18`,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 11 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(255,255,255,0.85)', borderRadius: 20, padding: '3px 9px' }}>
+                    <Sparkles size={11} color={aiAdvice.color} />
+                    <span style={{ fontSize: 9, fontWeight: 800, color: aiAdvice.color, letterSpacing: '0.06em' }}>AI アドバイス</span>
+                  </div>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: 'white', background: aiAdvice.color, borderRadius: 9999, padding: '2px 7px' }}>
+                    {aiAdvice.todayKeyword}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 10 }}>
+                  <span style={{ fontSize: 22, lineHeight: 1, flexShrink: 0 }}>{aiAdvice.icon}</span>
+                  <p style={{ fontSize: 13, fontWeight: 800, color: '#1A1A1A', lineHeight: 1.5 }}>{aiAdvice.headline}</p>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {aiAdvice.actions.map((action, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.65)', borderRadius: 10, padding: '7px 10px' }}>
+                      <span style={{ fontSize: 15, flexShrink: 0 }}>{action.emoji}</span>
+                      <span style={{ fontSize: 11, lineHeight: 1.6, color: '#2D2D2D' }}>{action.text}</span>
+                    </div>
+                  ))}
+                </div>
+                {aiRelatedArticles.length > 0 && (
+                  <div style={{ marginTop: 12 }}>
+                    <p style={{ fontSize: 10, fontWeight: 700, color: aiAdvice.color, marginBottom: 7 }}>おすすめ記事</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {aiRelatedArticles.slice(0, 2).map((article) => (
+                        <Link key={article.id} href={`/employee/contents/${article.id}`} style={{ textDecoration: 'none' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.7)', borderRadius: 10, padding: '7px 10px', cursor: 'pointer' }}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={article.thumbnailUrl} alt={article.title} style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 7, flexShrink: 0 }} />
+                            <p style={{ fontSize: 11, fontWeight: 600, color: '#1A1A1A', lineHeight: 1.45, flex: 1, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                              {article.title}
+                            </p>
+                            <ChevronRight size={13} color={aiAdvice.color} style={{ flexShrink: 0 }} />
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </section>
           )}
 
           {/* クイックアクセス */}
