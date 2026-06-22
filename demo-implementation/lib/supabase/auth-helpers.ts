@@ -48,6 +48,27 @@ export async function getSupabaseUserByClerkId(): Promise<SupabaseAppUser | null
 }
 
 /**
+ * デフォルト企業 ID を確保して返す
+ */
+export async function ensureDefaultCompanyId(
+  supabase: ReturnType<typeof createServiceRoleClient>
+): Promise<string> {
+  const { data: anyCompany } = await supabase
+    .from('companies')
+    .select('id')
+    .limit(1)
+    .maybeSingle()
+
+  if (anyCompany) return anyCompany.id
+
+  await supabase
+    .from('companies')
+    .upsert({ id: DEFAULT_COMPANY_ID, name: 'テスト会社' }, { onConflict: 'id' })
+
+  return DEFAULT_COMPANY_ID
+}
+
+/**
  * Clerk 認証済みユーザーの Supabase レコードを確保する。
  * 未登録の場合はデフォルト企業に紐づけてユーザーを自動作成する（ローカル開発用）。
  */
@@ -64,21 +85,7 @@ export async function ensureSupabaseUser(): Promise<SupabaseAppUser | null> {
   const clerkUserData = await currentUser()
   const email = clerkUserData?.emailAddresses?.[0]?.emailAddress ?? `${userId}@placeholder.local`
 
-  // 既存の会社を1件取得するか、なければデフォルト会社を作成
-  let companyId = DEFAULT_COMPANY_ID
-  const { data: anyCompany } = await supabase
-    .from('companies')
-    .select('id')
-    .limit(1)
-    .maybeSingle()
-
-  if (anyCompany) {
-    companyId = anyCompany.id
-  } else {
-    await supabase
-      .from('companies')
-      .upsert({ id: DEFAULT_COMPANY_ID, name: 'テスト会社' }, { onConflict: 'id' })
-  }
+  const companyId = await ensureDefaultCompanyId(supabase)
 
   // ユーザーを作成（age_group/life_stageはnullableなので省略可）
   const { data, error } = await supabase

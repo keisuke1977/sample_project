@@ -3,7 +3,7 @@
 import { Show, UserButton } from '@clerk/nextjs'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { CircleHelp, Heart, LogIn, Menu, X } from 'lucide-react'
+import { Heart, LogIn, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 
 const LANDING_NAV = [
@@ -18,8 +18,8 @@ export function Header() {
   const isEmployee = pathname.startsWith('/employee')
   const [menuOpen, setMenuOpen] = useState(false)
 
-  // 従業員ページは独自ヘッダーを持つので非表示
-  if (isEmployee) return null
+  // 従業員・オンボーディングページは独自レイアウトのため非表示
+  if (isEmployee || pathname === '/onboarding') return null
 
   if (isLanding) {
     return (
@@ -43,6 +43,7 @@ export function Header() {
                 マイページ
               </Link>
               <span style={{ color: '#DDD9D5', fontSize: '12px' }}>|</span>
+              <UserButton />
             </Show>
 
             <Show when="signed-out">
@@ -56,20 +57,6 @@ export function Header() {
               </Link>
               <span style={{ color: '#DDD9D5', fontSize: '12px' }}>|</span>
             </Show>
-
-            <Show when="signed-in">
-              <UserButton />
-              <span style={{ color: '#DDD9D5', fontSize: '12px' }}>|</span>
-            </Show>
-
-            <a
-              href="#faq"
-              style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', color: '#6B6B6B', textDecoration: 'none' }}
-              className="hover:text-[#C97A72] transition-colors"
-            >
-              <CircleHelp style={{ width: '14px', height: '14px' }} />
-              FAQ
-            </a>
           </div>
         </div>
 
@@ -165,10 +152,7 @@ export function Header() {
           </Link>
         </Show>
         <Show when="signed-in">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <Link href="/employee/home" style={{ fontSize: '13px', color: '#6B6B6B', textDecoration: 'none' }} className="hover:text-[#C97A72]">ホーム</Link>
-            <UserButton />
-          </div>
+          <UserButton />
         </Show>
       </div>
     </header>
